@@ -176,7 +176,6 @@ def test():
 
 model = PlainNet()
 model.apply(init_weights)
-model.offsets.apply(init_conv_offset)
 
 if args.cuda:
     model.cuda()
