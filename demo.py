@@ -122,7 +122,6 @@ class PlainNet(nn.Module):
 
         return F.log_softmax(x, dim=1)
 
-model = DeformNet()
 
 
 def init_weights(m):
@@ -138,13 +137,6 @@ def init_conv_offset(m):
         m.bias.data = torch.FloatTensor(m.bias.shape[0]).zero_()
 
 
-model.apply(init_weights)
-model.offsets.apply(init_conv_offset)
-
-if args.cuda:
-    model.cuda()
-
-optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 
 def train(epoch):
@@ -181,6 +173,31 @@ def test():
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
+
+model = PlainNet()
+model.apply(init_weights)
+model.offsets.apply(init_conv_offset)
+
+if args.cuda:
+    model.cuda()
+
+optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+
+for epoch in range(1, args.epochs + 1):
+    since = time()
+    train(epoch)
+    iter = time() - since
+    print("Spends {}s for each training epoch".format(iter/args.epochs))
+    test()
+
+model = DeformNet()
+model.apply(init_weights)
+model.offsets.apply(init_conv_offset)
+
+if args.cuda:
+    model.cuda()
+
+optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 for epoch in range(1, args.epochs + 1):
     since = time()
